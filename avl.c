@@ -17,8 +17,6 @@ struct aval
   int freq;
   int height;
   int bal;
-  // int lefth;
-  // int righth;
   void (*display)(void *, FILE *);
   int (*compare)(void *, void *);
   void (*free)(void *);
@@ -34,8 +32,6 @@ newAVAL(void (*d)(void *,FILE *),int (*c)(void *,void *),void (*f)(void *), void
   new->freq        = 1;
   new->height      = 0;
   new->bal     = 0;
-  // new->lefth       = -1;
-  // new->righth      = -1;
   new->display     = d;
   new->compare     = c;
   new->free        = f;
@@ -48,10 +44,6 @@ extern void *getAVALvalue(AVAL *temp);
 extern int   getAVALfrequency(AVAL *temp);
 extern int   getAVALheight(AVAL *temp);
 extern int   getHeight(BSTNODE *temp);
-// extern void  setLeftHeight(BSTNODE *temp, int lh);
-// extern int   getLeftHeight(AVAL *temp);
-// extern void  setRightHeight(BSTNODE *temp, int rh);
-// extern int   getRightHeigth(AVAL *temp);
 extern int   getAVALbalance(AVAL *temp);
 extern int   getBalance(BSTNODE *temp);
 extern int   getMax(int a, int b);
@@ -456,22 +448,16 @@ extern void deleteFixup(AVL *a, BSTNODE *curr)
 {
   changeHeight(curr, -1);
   while (1) {
-    // printf("----------------\n");
-    // displayAVL(a,stdout);
-    // printf("--------TOP OF WHILE--------\n\n\n");
     BSTNODE *parent = getBSTNODEparent(curr);
     BSTNODE *fav = getFavoriteChild(parent);
     if (parent == curr) {
-    //   printf("^^^^^^^^REACHED ROOT^^^^^^^^\n\n");
       return;
     }
     else if (fav && curr == fav) {
-      // printf("^^^^^^^^CURR IS FAV^^^^^^^^\n\n\n");
       setBalance(parent);
       curr = parent;
     }
     else if (!fav) {
-      // printf("^^^^^^^^NO FAVORITE CHILD^^^^^^^^\n\n\n");
       setBalance(parent);
       return;
     }
@@ -480,23 +466,15 @@ extern void deleteFixup(AVL *a, BSTNODE *curr)
       BSTNODE *y = getFavoriteChild(sibling);
       int l = checkLinear(y, sibling, parent);
       if (y && l == 0) {
-        // printf("^^^^^^^^DOUBLE ROTATE IS NEEDED^^^^^^^^\n\n");
         rotate(a, y);
-        // displayAVAL(a, stdout);
-        // printf("^^^^^^^^FIRST ROTATE COMPLETE^^^^^^^^\n\n");
         rotate(a, y);
-        // displayAVL(a, stdout);
-        // printf("^^^^^^^^SECOND ROTATE COMPLETE^^^^^^^^\n\n\n");
         setBalance(parent);
         setBalance(sibling);
         setBalance(y);
         curr = y;
       }
       else {
-        // printf("^^^^^^^^SINLGE ROTATE NEEDED^^^^^^^^\n\n");
         rotate(a, sibling);
-        // displayAVL(a, stdout);
-        // printf("^^^^^^^^SINGLE ROTATE COMPLETE^^^^^^^^\n\n\n");
         setBalance(parent);
         setBalance(sibling);
         if (!y) {
@@ -571,20 +549,15 @@ extern void *deleteAVL(AVL *a,void *value)
     if (getAVALfrequency(temp2) > 1) {
       decrAVALfrequency(temp2);
       a->size--;
-      // displayAVL(a, stdout);
-      // printf("^^^^^^^^AFTER DECR^^^^^^^^\n\n\n");
       return NULL;
     }
     else if (getAVALfrequency(temp2) == 1) {
       BSTNODE *delete = swapToLeafBST(a->tree, find);
       deleteFixup(a, delete);
       pruneLeafBST(a->tree, delete);
-      // displayAVL(a, stdout);
-      // printf("^^^^^^^^AFTER PRUNE^^^^^^^^\n\n\n");
       int s = sizeBST(a->tree);
       s--;
       setBSTsize(a->tree, s);
-      // deleteFixup(a, delete);
       temp2 = getBSTNODEvalue(delete);
       void *val = getAVALvalue(temp2);
       freeBSTNODE(delete, a->free);
