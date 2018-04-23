@@ -19,6 +19,7 @@ struct dll
 {
   void *head;
   void *tail;
+  node1 *iterator;
   int size;
   void (*display)(void *, FILE *);
   void (*free)(void *);
@@ -38,7 +39,7 @@ newDLL(void (*d)(void *,FILE *),void (*f)(void *)) {  //constructor of a new Dou
 }
 
 
-extern void
+extern void *
 insertDLL(DLL *items,int index,void *value) { //insert a node to list
   assert(index >= 0 && index <= items->size);
   struct node1 *temp = malloc(sizeof(node1));
@@ -50,7 +51,7 @@ insertDLL(DLL *items,int index,void *value) { //insert a node to list
     items->head = temp;
     items->tail = temp;
     items->size = 1;
-    return;
+    return temp;
   }
 
   if (index == 0) { //add to head
@@ -95,7 +96,7 @@ insertDLL(DLL *items,int index,void *value) { //insert a node to list
     items->size++;
   }
 
-  return;
+  return temp;
 }
 
 
@@ -338,4 +339,91 @@ freeDLL(DLL *items) { //frees the space allocated for the given list
   free(items);
 
   return;
+}
+
+
+extern void
+removeDLLall(DLL *d)
+{
+  if (d->size == 0) {
+    d->head = NULL;
+    d->tail = NULL;
+    return;
+  }
+  node1 *curr = d->head;
+  for (int i=0; i<d->size; i++) {
+    node1 *prev = curr;
+    curr = curr->next;
+    free(prev);
+  }
+  d->size = 0;
+  d->head = NULL;
+  d->tail = NULL;
+  return;
+}
+
+
+extern void *
+removeDLLnode(DLL *d,void *a)
+{
+  node1 *rem = a;
+  node1 *prev = rem->prev;
+  node1 *next = rem->next;
+  void *val = rem->data;
+  prev->next = next;
+  next->prev = prev;
+  d->size--;
+  free(rem);
+  return val;
+}
+
+
+extern void
+firstDLL(DLL *d)
+{
+  d->iterator = d->head;
+  return;
+}
+
+
+extern void
+lastDLL(DLL *d)
+{
+  d->iterator = d->tail;
+  return;
+}
+
+
+extern int
+moreDLL(DLL *d)
+{
+  node1 *temp = d->iterator;
+  if (temp) return 1;
+  else return 0;
+}
+
+
+extern void
+nextDLL(DLL *d)
+{
+  node1 *temp = d->iterator;
+  d->iterator = temp->next;
+  return;
+}
+
+
+extern void
+prevDLL(DLL *d)
+{
+  node1 *temp = d->iterator;
+  d->iterator = temp->prev;
+  return;
+}
+
+
+extern void *
+currentDLL(DLL *d)
+{
+  node1 *temp = d->iterator;
+  return temp->data;
 }

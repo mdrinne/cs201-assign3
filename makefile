@@ -1,6 +1,6 @@
 
 
-OBJS = integer.o real.o string.o sll.o dll.o queue.o stack.o bst.o heap.o heapsort.o gst.o avl.o scanner.o
+OBJS = integer.o real.o string.o sll.o dll.o queue.o stack.o bst.o heap.o heapsort.o gst.o avl.o scanner.o binomial.o
 LOPTS = -Wall -Wextra -std=c99 -g
 BEXTRA = sll.c queue.c integer.c real.c string.c
 BOEXTRA = sll.o queue.o integer.o real.o string.o
@@ -35,6 +35,10 @@ test-avl:
 	gcc $(LOPTS) -c avl-0-4.c avl.c bst.c $(BEXTRA)
 	gcc $(LOPTS) avl-0-4.c $(BOEXTRA) avl.o bst.o -o test-avl
 
+test-binomial:
+	gcc $(LOPTS) -c binomial-0-0.c binomial.c avl.c bst.c $(BEXTRA)
+	gcc $(LOPTS) binomial-0-0.c $(BOEXTRA) binomial.o avl.o bst.o -o test-binomial
+
 valgrind: all
 	valgrind ./test-sll
 	valgrind ./test-dll
@@ -43,6 +47,7 @@ valgrind: all
 	valgrind ./test-bst
 	valgrind ./test-gst
 	valgrind ./test-avl
+	valgrind ./test-binomial
 
 test :
 	./test-sll
@@ -52,6 +57,7 @@ test :
 	./test-bst
 	./test-gst
 	./test-avl
+	./test-binomial
 
 clean :
-	rm -f $(OBJS) queue-*.o stack-*.o dll-*.o test-stack test-queue test-sll test-dll test-bst test-gst test-avl gst-*.o avl-*.o sll-*.o bst-*.o
+	rm -f $(OBJS) queue-*.o stack-*.o dll-*.o test-stack test-queue test-sll test-dll test-bst test-gst test-avl gst-*.o avl-*.o sll-*.o bst-*.o binomial-*.o test-binomial
