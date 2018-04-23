@@ -14,18 +14,26 @@
 
 struct binomial
 {
-
+  AVL *atree;
+  int size;
+  void (*display)(void *,FILE *);
+  int (*compare)(void *, void *);
+  void (*update)(void *, void *);
+  void (*free)(void *);
 }
 
 
 extern BINOMIAL *
-newBINOMIAL(
-    void (*display)(void *,FILE *),
-    int (*compare)(void *,void *),
-    void (*update)(void *,void *),
-    void (*free)(void *))
+newBINOMIAL(void (*d)(void *,FILE *),int (*c)(void *,void *),void (*u)(void *,void *),void (*f)(void *))
 {
-
+  BINOMIAL *b = malloc(sizeof(BINOMIAL));
+  assert(b != 0);
+  b->atree   = newAVL(d,c,f);
+  b->size    = 0;
+  b->display = d;
+  b->compare = c;
+  b->update  = u;
+  b->free    = f;
 }
 
 
@@ -102,5 +110,5 @@ displayBINOMIALdebug(BINOMIAL *b,FILE *fp)
 extern void
 freeBINOMIAL(BINOMIAL *b)
 {
-  
+
 }
