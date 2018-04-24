@@ -12,6 +12,12 @@
 #include "binomial.h"
 
 
+typedef struct bnode
+{
+  
+} BNODE;
+
+
 struct binomial
 {
   AVL *atree;
@@ -20,7 +26,7 @@ struct binomial
   int (*compare)(void *, void *);
   void (*update)(void *, void *);
   void (*free)(void *);
-}
+};
 
 
 extern BINOMIAL *
