@@ -32,6 +32,7 @@ newDLL(void (*d)(void *,FILE *),void (*f)(void *)) {  //constructor of a new Dou
   assert(items != 0);
   items->head = 0;
   items->tail = 0;
+  items->iterator = NULL;
   items->size = 0;
   items->display = d;
   items->free = f;
@@ -48,6 +49,8 @@ insertDLL(DLL *items,int index,void *value) { //insert a node to list
   temp->next = NULL;
 
   if(items->size == 0) {  //add to empty list
+    temp->next  = temp;
+    temp->prev  = temp;
     items->head = temp;
     items->tail = temp;
     items->size = 1;
@@ -56,6 +59,9 @@ insertDLL(DLL *items,int index,void *value) { //insert a node to list
 
   if (index == 0) { //add to head
     struct node1 *curr = items->head;
+    struct node1 *tail = items->tail;
+    temp->prev = tail;
+    tail->next = temp;
     curr->prev = temp;
     temp->next = curr;
     items->head = temp;
@@ -63,9 +69,11 @@ insertDLL(DLL *items,int index,void *value) { //insert a node to list
   }
   else if (index == items->size) {  //add to tail
     struct node1 *curr = items->tail;
+    struct node1 *head = items->head;
+    temp->next = head;
+    head->prev = temp;
     curr->next = temp;
     temp->prev = curr;
-    temp->next = NULL;
     items->tail = temp;
     items->size++;
   }
@@ -116,7 +124,9 @@ removeDLL(DLL *items,int index) { //remove a node from the list
   if (index == 0) { //remove the head
     struct node1 *rem = items->head;
     struct node1 *newhead = rem->next;
-    newhead->prev = NULL;
+    struct node1 *tail = items->tail;
+    newhead->prev = tail;
+    tail->next = newhead;
     items->head = newhead;
     items->size--;
     if (items->size == 1) {  //if only one item remains after node is removed, make head and tail the same node
@@ -130,7 +140,9 @@ removeDLL(DLL *items,int index) { //remove a node from the list
   else if (index == items->size-1) {  //remove the tail
     struct node1 *rem = items->tail;
     struct node1 *newtail = rem->prev;
-    newtail->next = NULL;
+    struct node1 *head = items->head;
+    newtail->next = head;
+    head->prev = newtail;
     items->tail = newtail;
     items->size--;
     void *value = rem->data;
@@ -176,16 +188,18 @@ unionDLL(DLL *recipient,DLL *donor) { //joins two list together
     return;
   }
   else {
-    struct node1 *rt = recipient->tail;
-    struct node1 *dh = donor->head;
-    struct node1 *dt = donor->tail;
-    rt->next = dh;
-    dh->prev = rt;
-    dt->next = NULL;
     recipient->tail = donor->tail;
     if (recipient->size == 0) {
       recipient->head = donor->head;
     }
+    struct node1 *rt = recipient->tail;
+    struct node1 *rh = recipient->head;
+    struct node1 *dh = donor->head;
+    struct node1 *dt = donor->tail;
+    rt->next = dh;
+    dh->prev = rt;
+    dt->next = rh;
+    rh->prev = dt;
     recipient->size = recipient->size + donor->size;
     donor->size = 0;
     return;
