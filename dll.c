@@ -381,6 +381,8 @@ extern void *
 removeDLLnode(DLL *d,void *a)
 {
   node1 *rem = a;
+  if (rem == d->head) d->head = rem->next;
+  if (rem == d->tail) d->tail = rem->prev;
   node1 *prev = rem->prev;
   node1 *next = rem->next;
   void *val = rem->data;

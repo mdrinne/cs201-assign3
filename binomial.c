@@ -117,10 +117,13 @@ newBINOMIAL(void (*d)(void *,FILE *),int (*c)(void *,void *),void (*u)(void *,vo
 
 
 /*----------public binomial functions----------*/
-extern void incrHeapSize(BINOMIAL *b);
-extern int  getHeapSize(BINOMIAL *b);
-extern int  calculateArraySize(BINOMIAL *b);
-extern void consolidate(Binomial *b);
+extern void  incrHeapSize(BINOMIAL *b);
+extern int   getHeapSize(BINOMIAL *b);
+extern DLL  *getChildren(DLL *d);
+extern int   calculateArraySize(BINOMIAL *b);
+extern void  combine(BINOMIAL *b, BNODE *x, BNODE *y);
+extern void  updateConsolidationArray(void *D, int size, BNODE *spot);
+extern void  consolidate(Binomial *b);
 /*---------------------------------------------*/
 
 
@@ -139,10 +142,35 @@ getHeapSize(BINOMIAL *b)
 }
 
 
+extern DLL *
+getChildren(DLL *d)
+{
+  return d->children;
+}
+
+
 extern int
 calculateArraySize(BINOMIAL *b)
 {
-  return log(getHeapSize(b))/log(2)+1;
+  return (log((double)getHeapSize(b))/log(2.0))+1;
+}
+
+
+extern void
+combine(BINOMIAL *b, BNODE *x, BNODE *y)
+{
+
+}
+
+
+extern void
+updateConsolidationArray(void *D, int size, BNODE *spot, BINOMIAL *b)
+{
+  int degree = sizeDLL(getChildren(spot));
+  while (D[degree]) {
+    spot = combine(b,spot,D[degree])
+  }
+  D[degree] = spot;
 }
 
 
@@ -150,7 +178,16 @@ extern void
 consolidate(BINOMIAL *b)
 {
   int size = calculateArraySize(b);
-  void *d[size];
+  void *D[size];
+  for (int i=0; i<size, i++) {
+    D[i] = NULL;
+  }
+
+  while (sizeDLL(b->rootList) != 0) {
+    firstDLL(b->rootList);
+    BNODE *spot = removeDLLnode(currentDLL(b->rootList), temp);
+    updateConsolidationArray(D,size,spot,b);
+  }
 }
 
 
