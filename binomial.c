@@ -187,7 +187,7 @@ updateConsolidationArray(void *D, int size, BNODE *spot, BINOMIAL *b)
   return;
 }
 
-
+/*------1.0------*/
 extern void
 consolidate(BINOMIAL *b)
 {
