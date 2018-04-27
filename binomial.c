@@ -117,13 +117,13 @@ newBINOMIAL(void (*d)(void *,FILE *),int (*c)(void *,void *),void (*u)(void *,vo
 
 
 /*----------public binomial functions----------*/
-extern void  incrHeapSize(BINOMIAL *b);
-extern int   getHeapSize(BINOMIAL *b);
-extern DLL  *getChildren(DLL *d);
-extern int   calculateArraySize(BINOMIAL *b);
-extern void  combine(BINOMIAL *b, BNODE *x, BNODE *y);
-extern void  updateConsolidationArray(void *D, int size, BNODE *spot);
-extern void  consolidate(Binomial *b);
+extern void    incrHeapSize(BINOMIAL *b);
+extern int     getHeapSize(BINOMIAL *b);
+extern DLL    *getChildren(DLL *d);
+extern int     calculateArraySize(BINOMIAL *b);
+extern BNODE  *combine(BINOMIAL *b, BNODE *x, BNODE *y);
+extern void    updateConsolidationArray(void *D, int size, BNODE *spot);
+extern void    consolidate(Binomial *b);
 /*---------------------------------------------*/
 
 
@@ -156,10 +156,21 @@ calculateArraySize(BINOMIAL *b)
 }
 
 
-extern void
+extern BNODE *
 combine(BINOMIAL *b, BNODE *x, BNODE *y)
 {
-
+  void *temp = getBNODEvalue(x);
+  void *temp2 = getBNODEvalue(y);
+  if (b->compare(x,y) < 0) {
+    insertDLL(x->children, 0, y);
+    y->parent = x;
+    return x;
+  }
+  else {
+    insertDLL(y->children, 0, x);
+    x->parent = y;
+    return y;
+  }
 }
 
 
@@ -168,9 +179,12 @@ updateConsolidationArray(void *D, int size, BNODE *spot, BINOMIAL *b)
 {
   int degree = sizeDLL(getChildren(spot));
   while (D[degree]) {
-    spot = combine(b,spot,D[degree])
+    spot = combine(b,spot,D[degree]);
+    D[degree] = NULL;
+    degree++;
   }
   D[degree] = spot;
+  return;
 }
 
 
@@ -188,6 +202,16 @@ consolidate(BINOMIAL *b)
     BNODE *spot = removeDLLnode(currentDLL(b->rootList), temp);
     updateConsolidationArray(D,size,spot,b);
   }
+  b->extreme = NULL;
+  for (int i=0; i<size; i++) {
+    if (D[i]) {
+      insertDLL(b->rootList,0,D[i]);
+      if (b->extreme == NULL || b->compare(getBNODEvalue(D[i]),getBNODEvalue(b->extreme)) < 0) {
+        b->extreme = D[i];
+      }
+    }
+  }
+  free(D);
 }
 
 
