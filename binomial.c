@@ -123,7 +123,9 @@ extern DLL    *getChildren(DLL *d);
 extern int     calculateArraySize(BINOMIAL *b);
 extern BNODE  *combine(BINOMIAL *b, BNODE *x, BNODE *y);
 extern void    updateConsolidationArray(void *D, int size, BNODE *spot);
-extern void    consolidate(Binomial *b);
+extern void    consolidate(BINOMIAL *b);
+extern void    mergeRootLists(BINOMIAL *d, BINOMIAL *donor);
+extern void    setBinomialSize(BINOMIAL *d, int size);
 /*---------------------------------------------*/
 
 
@@ -224,6 +226,42 @@ consolidate(BINOMIAL *b)
 }
 
 
+/*------1.0------*/
+extern void
+mergeRootLists(BINOMIAL *b, BINOMIAL *donor)
+{
+  int count = 0;
+  firstDLL(b->rootList);
+  firstDLL(donor->rootList);
+  BNODE *temp = removeDLL(donor->rootList, 0);
+  BNODE *temp2 = currentDLL(b->rootList);
+  while (sizeDLL(donor->rootList) >= 0) {
+    if (b->compare(getBNODEvalue(temp), getBNODEvalue(temp2)) < 0) {
+      insertDLL(b->rootList, count, temp);
+      if (sizeDLL(donor->rootList) == 0) {
+        return;
+      }
+      firstDLL(donor->rootList);
+      count++;
+    }
+    else {
+      nextDLL(b->rootList);
+      count++;
+    }
+  }
+  return;
+}
+
+
+extern void
+setBinomialSize(BINOMIAL *d, int size)
+{
+  d->size = size;
+  return;
+}
+
+
+/*------1.0------*/
 extern void *
 insertBINOMIAL(BINOMIAL *b,void *value)
 {
@@ -238,14 +276,24 @@ insertBINOMIAL(BINOMIAL *b,void *value)
 extern int
 sizeBINOMIAL(BINOMIAL *b)
 {
-
+  return b->size;
 }
 
 
+/*------1.0------*/
 extern void
-unionBINOMIAL(BINOMIAL *,BINOMIAL *)
+unionBINOMIAL(BINOMIAL *b,BINOMIAL *donor)
 {
-
+  if (sizeDLL(donor->rootList) == 0) {
+    return;
+  }
+  int donorSize = sizeBINOMIAL(donor);
+  mergeRootLists(b,donor);
+  setBinomialSize(b,sizeBINOMIAL(b)+donorSize);
+  donor->rootList = newDLL(displayBNODE, freeBNODE);
+  donor->size = 0;
+  donor->extreme = NULL;
+  consolidate(b);
 }
 
 
