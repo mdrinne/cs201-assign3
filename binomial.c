@@ -138,7 +138,7 @@ extern DLL    *getChildren(BNODE *d);
 extern DLL    *getRootList(BINOMIAL *b);
 extern int     calculateArraySize(BINOMIAL *b);
 extern BNODE  *combine(BINOMIAL *b, BNODE *x, BNODE *y);
-extern void    updateConsolidationArray(void *D, BNODE *spot, BINOMIAL *b);
+extern void    updateConsolidationArray(void *D[], BNODE *spot, BINOMIAL *b);
 extern void    consolidate(BINOMIAL *b);
 // extern void    mergeLists(DLL *b, DLL *donor, BINOMIAL *bi);
 extern void    setBinomialSize(BINOMIAL *d, int size);
@@ -205,7 +205,7 @@ combine(BINOMIAL *b, BNODE *x, BNODE *y)
 
 
 extern void
-updateConsolidationArray(void *D, BNODE *spot, BINOMIAL *b)
+updateConsolidationArray(void *D[], BNODE *spot, BINOMIAL *b)
 {
   int degree = sizeDLL(getChildren(spot));
   while (D[degree] != NULL) {

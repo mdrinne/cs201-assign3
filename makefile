@@ -2,8 +2,8 @@
 
 OBJS = integer.o real.o string.o sll.o dll.o queue.o stack.o bst.o heap.o heapsort.o gst.o avl.o scanner.o binomial.o
 LOPTS = -Wall -Wextra -std=c99 -g
-BEXTRA = sll.c queue.c integer.c real.c string.c
-BOEXTRA = sll.o queue.o integer.o real.o string.o
+BEXTRA = sll.c dll.c queue.c integer.c real.c string.c
+BOEXTRA = sll.o dll.o queue.o integer.o real.o string.o
 
 all : test-sll test-dll test-stack test-queue test-bst test-gst test-avl trees
 
