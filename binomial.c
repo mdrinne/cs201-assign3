@@ -187,7 +187,7 @@ updateConsolidationArray(void *D, int size, BNODE *spot, BINOMIAL *b)
   return;
 }
 
-/*------1.0------*/
+/*------2.0------*/
 extern void
 consolidate(BINOMIAL *b)
 {
@@ -203,9 +203,18 @@ consolidate(BINOMIAL *b)
     updateConsolidationArray(D,size,spot,b);
   }
   b->extreme = NULL;
-  for (int i=0; i<size; i++) {
+  for (int i=size-1; i>-0; i--) {
     if (D[i]) {
-      insertDLL(b->rootList,0,D[i]);
+      BNODE *temp = insertDLL(b->rootList,0,D[i]);
+      if (sizeDLL(b->rootList) == 1) {
+        temp->rsib = NULL;
+      }
+      else {
+        firstDLL(b->rootList);
+        nextDLL(b->rootList);
+        BNODE *next = currentDLL();
+        temp->rsib = next;
+      }
       if (b->extreme == NULL || b->compare(getBNODEvalue(D[i]),getBNODEvalue(b->extreme)) < 0) {
         b->extreme = D[i];
       }
@@ -221,6 +230,8 @@ insertBINOMIAL(BINOMIAL *b,void *value)
   BNODE *new = newBNODE(b->display,b->compare,b->update,b->free, value);
   insertDLL(b->rootList, 0, new);
   incrHeapSize(b);
+  consolidate(b);
+  return new;
 }
 
 
