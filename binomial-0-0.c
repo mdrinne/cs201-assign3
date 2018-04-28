@@ -38,7 +38,7 @@ main(void)
     freeINTEGER(r);
     displayBINOMIAL(p,stdout);
     printf("debug:\n");
-    // displayBINOMIALdebug(p,stdout);
+    displayBINOMIALdebug(p,stdout);
     printf("min should be %d\n",getINTEGER(peekBINOMIAL(p)));
     r = extractBINOMIAL(p);
     printf("min is %d\n",getINTEGER(r));
@@ -47,12 +47,12 @@ main(void)
     freeINTEGER(r);
     displayBINOMIAL(p,stdout);
     printf("debug:\n");
-    // displayBINOMIALdebug(p,stdout);
+    displayBINOMIALdebug(p,stdout);
     printf("min should be %d\n",getINTEGER(peekBINOMIAL(p)));
     r = extractBINOMIAL(p);
     printf("min was %d\n",getINTEGER(r));
     freeINTEGER(r);
     printf("size: %d\n",sizeBINOMIAL(p));
-    // freeBINOMIAL(p);
+    freeBINOMIAL(p);
     return 0;
     }

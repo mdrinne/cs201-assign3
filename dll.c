@@ -59,9 +59,7 @@ insertDLL(DLL *items,int index,void *value) { //insert a node to list
 
   if (index == 0) { //add to head
     struct node1 *curr = items->head;
-    // struct node1 *tail = items->tail;
     temp->prev = NULL;
-    // tail->next = temp;
     curr->prev = temp;
     temp->next = curr;
     items->head = temp;
@@ -69,9 +67,7 @@ insertDLL(DLL *items,int index,void *value) { //insert a node to list
   }
   else if (index == items->size) {  //add to tail
     struct node1 *curr = items->tail;
-    // struct node1 *head = items->head;
     temp->next = NULL;
-    // head->prev = temp;
     curr->next = temp;
     temp->prev = curr;
     items->tail = temp;
@@ -124,9 +120,7 @@ removeDLL(DLL *items,int index) { //remove a node from the list
   if (index == 0) { //remove the head
     struct node1 *rem = items->head;
     struct node1 *newhead = rem->next;
-    // struct node1 *tail = items->tail;
     newhead->prev = NULL;
-    // tail->next = newhead;
     items->head = newhead;
     items->size--;
     if (items->size == 1) {  //if only one item remains after node is removed, make head and tail the same node
@@ -140,9 +134,7 @@ removeDLL(DLL *items,int index) { //remove a node from the list
   else if (index == items->size-1) {  //remove the tail
     struct node1 *rem = items->tail;
     struct node1 *newtail = rem->prev;
-    // struct node1 *head = items->head;
     newtail->next = NULL;
-    // head->prev = newtail;
     items->tail = newtail;
     items->size--;
     void *value = rem->data;
@@ -311,7 +303,7 @@ displayDLL(DLL *items,FILE *fp) { //displays the contents of the given list
   struct node1 *curr = items->head;
   for (int i=0; i<items->size; i++) {
     items->display(curr->data, fp);
-    if (curr->next != NULL) {
+    if (i != items->size-1) {
       printf(",");
     }
     curr = curr->next;

@@ -105,6 +105,7 @@ struct binomial
 {
   DLL *rootList;
   QUEUE *nodes;
+  QUEUE *oldNodes;
   BNODE *extreme;
   int size;
   void (*display)(void *,FILE *);
@@ -121,6 +122,7 @@ newBINOMIAL(void (*d)(void *,FILE *),int (*c)(void *,void *),void (*u)(void *,vo
   assert(b != 0);
   b->rootList = newDLL(displayBNODE,freeBNODE);
   b->nodes    = newQUEUE(d,f);
+  b->oldNodes = newQUEUE(d,f);
   b->extreme  = NULL;
   b->size     = 0;
   b->display  = d;
@@ -430,9 +432,44 @@ displayBINOMIAL(BINOMIAL *b,FILE *fp)
 
 
 extern void
+displayBINOMIALlevel(BINOMIAL *b, FILE *fp, int count)
+{
+  DLL *curr = dequeue(b->nodes);
+  while (count > 0)
+  {
+    if (sizeDLL(curr) > 0) displayDLL(curr,fp);
+    firstDLL(curr);
+    for (int i=0; i<sizeDLL(curr); i++)
+    {
+      BNODE *temp = currentDLL(curr);
+      if (temp)
+      {
+        enqueue(b->nodes, getChildren(temp));
+      }
+      nextDLL(curr);
+    }
+    count--;
+    curr = dequeue(b->nodes);
+  }
+  printf("\n");
+  if (sizeQUEUE(b->nodes) > 0)
+  {
+    displayBINOMIALlevel(b,fp,sizeQUEUE(b->nodes));
+  }
+  return;
+}
+
+
+extern void
 displayBINOMIALdebug(BINOMIAL *b,FILE *fp)
 {
-
+  if (b->size == 0) return;
+  else
+  {
+    enqueue(b->nodes,b->rootList);
+    displayBINOMIALlevel(b, fp, 1);
+  }
+  return;
 }
 
 
