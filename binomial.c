@@ -138,7 +138,7 @@ extern DLL    *getChildren(BNODE *d);
 extern DLL    *getRootList(BINOMIAL *b);
 extern int     calculateArraySize(BINOMIAL *b);
 extern BNODE  *combine(BINOMIAL *b, BNODE *x, BNODE *y);
-extern void    updateConsolidationArray(void *D[], BNODE *spot, BINOMIAL *b);
+extern void    updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b);
 extern void    consolidate(BINOMIAL *b);
 // extern void    mergeLists(DLL *b, DLL *donor, BINOMIAL *bi);
 extern void    setBinomialSize(BINOMIAL *d, int size);
@@ -189,13 +189,15 @@ combine(BINOMIAL *b, BNODE *x, BNODE *y)
 {
   void *temp = getBNODEvalue(x);
   void *temp2 = getBNODEvalue(y);
-  if (b->compare(temp,temp2) < 0) {
+  if (b->compare(temp,temp2) < 0)
+  {
     node1 *owner = insertDLL(x->children, 0, y);
     y->owner = owner;
     y->parent = x;
     return x;
   }
-  else {
+  else
+  {
     node1 *owner = insertDLL(y->children, 0, x);
     x->owner = owner;
     x->parent = y;
@@ -205,10 +207,11 @@ combine(BINOMIAL *b, BNODE *x, BNODE *y)
 
 
 extern void
-updateConsolidationArray(void *D[], BNODE *spot, BINOMIAL *b)
+updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b)
 {
   int degree = sizeDLL(getChildren(spot));
-  while (D[degree] != NULL) {
+  while (D[degree] != NULL)
+  {
     spot = combine(b,spot,D[degree]);
     D[degree] = NULL;
     degree++;
@@ -217,36 +220,45 @@ updateConsolidationArray(void *D[], BNODE *spot, BINOMIAL *b)
   return;
 }
 
-/*------2.0------*/
+/*------3.0------*/
 extern void
 consolidate(BINOMIAL *b)
 {
   int size = calculateArraySize(b);
-  void *D[size];
-  for (int i=0; i<size; i++) {
+  BNODE **D[sizeof(BNODE *) * size];
+  for (int i=0; i<size; i++)
+  {
     D[i] = NULL;
   }
 
-  while (sizeDLL(b->rootList) != 0) {
+  while (sizeDLL(b->rootList) != 0)
+  {
     firstDLL(b->rootList);
     BNODE *spot = removeDLLnode(b->rootList, currentDLL(b->rootList));
-    updateConsolidationArray(D,spot,b);
+    updateConsolidationArray(*D,spot,b);
   }
+
   b->extreme = NULL;
-  for (int i=size-1; i>-0; i--) {
-    if (D[i]) {
+  for (int i=size-1; i>-0; i--)
+  {
+    if (D[i])
+    {
       BNODE *temp = insertDLL(b->rootList,0,D[i]);
-      if (sizeDLL(b->rootList) == 1) {
+      if (sizeDLL(b->rootList) == 1)
+      {
         temp->rsib = NULL;
       }
-      else {
+      else
+      {
         firstDLL(b->rootList);
         nextDLL(b->rootList);
         BNODE *next = currentDLL(b->rootList);
         temp->rsib = next;
       }
-      if (b->extreme == NULL || b->compare(getBNODEvalue(D[i]),getBNODEvalue(b->extreme)) < 0) {
-        b->extreme = D[i];
+      BNODE *temp2 = *D[i];
+      if (b->extreme == NULL || b->compare(getBNODEvalue(temp2),getBNODEvalue(b->extreme)) < 0)
+      {
+        b->extreme = temp2;
       }
     }
   }
@@ -347,7 +359,8 @@ sizeBINOMIAL(BINOMIAL *b)
 extern void
 unionBINOMIAL(BINOMIAL *b,BINOMIAL *donor)
 {
-  if (sizeDLL(donor->rootList) == 0) {
+  if (sizeDLL(donor->rootList) == 0)
+  {
     return;
   }
   int donorSize = sizeBINOMIAL(donor);
@@ -387,7 +400,8 @@ extractBINOMIAL(BINOMIAL *b)
 {
   BNODE *extreme = removeDLLnode(b->rootList, getBNODEowner(getBinomialExtreme(b)));
   firstDLL(extreme->children);
-  for (int i=0; i<sizeDLL(extreme->children); i++) {
+  for (int i=0; i<sizeDLL(extreme->children); i++)
+  {
     BNODE *temp = currentDLL(extreme->children);
     temp->parent = temp;
     nextDLL(extreme->children);
@@ -420,19 +434,23 @@ displayBINOMIAL(BINOMIAL *b,FILE *fp)
   firstDLL(roots);
   fprintf(fp, "rootlist:");
   BNODE *temp = NULL;
-  while (count <= size) {
+  while (count <= size)
+  {
     temp = currentDLL(roots);
     DLL *children = getChildren(temp);
     int degree = sizeDLL(children);
-    if (count < degree) {
+    if (count < degree)
+    {
       fprintf(fp, " NULL");
       count++;
     }
-    else {
+    else
+    {
       fprintf(fp, " ");
       b->display(getBNODEvalue(temp), fp);
       BNODE *extreme = getBinomialExtreme(b);
-      if (b->compare(getBNODEvalue(temp), getBNODEvalue(extreme)) == 0) {
+      if (b->compare(getBNODEvalue(temp), getBNODEvalue(extreme)) == 0)
+      {
         fprintf(fp, "*");
       }
       nextDLL(roots);
