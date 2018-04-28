@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 typedef struct binomial BINOMIAL;
+typedef struct bnode BNODE;
 
 extern BINOMIAL *newBINOMIAL(
     void (*display)(void *,FILE *),
