@@ -134,17 +134,15 @@ newBINOMIAL(void (*d)(void *,FILE *),int (*c)(void *,void *),void (*u)(void *,vo
 /*----------public binomial functions----------*/
 extern void    incrHeapSize(BINOMIAL *b);
 extern void    decrHeapSize(BINOMIAL *b);
-extern int     getHeapSize(BINOMIAL *b);
+extern void    setHeapSize(BINOMIAL *b, int size);
 extern DLL    *getChildren(BNODE *d);
 extern DLL    *getRootList(BINOMIAL *b);
+extern void    setRootList(BINOMIAL *b, DLL *list);
 extern int     calculateArraySize(BINOMIAL *b);
 extern BNODE  *combine(BINOMIAL *b, BNODE *x, BNODE *y);
 extern void    updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b);
 extern void    consolidate(BINOMIAL *b);
-// extern void    mergeLists(DLL *b, DLL *donor, BINOMIAL *bi);
-extern void    setBinomialSize(BINOMIAL *d, int size);
 extern BNODE  *getBinomialExtreme(BINOMIAL *b);
-// extern void    mergeListsBackwards(DLL *b, DLL *donor, BINOMIAL *bi);
 /*---------------------------------------------*/
 
 
@@ -160,6 +158,14 @@ extern void
 decrHeapSize(BINOMIAL *b)
 {
   b->size--;
+  return;
+}
+
+
+extern void
+setHeapSize(BINOMIAL *b, int size)
+{
+  b->size = size;
   return;
 }
 
@@ -180,6 +186,14 @@ getRootList(BINOMIAL *b)
 }
 
 
+extern void
+setRootList(BINOMIAL *b, DLL *list)
+{
+  b->rootList = list;
+  return;
+}
+
+
 extern int
 calculateArraySize(BINOMIAL *b)
 {
@@ -194,14 +208,15 @@ combine(BINOMIAL *b, BNODE *x, BNODE *y)
   void *temp2 = getBNODEvalue(y);
   if (b->compare(temp,temp2) < 0)
   {
-    node1 *owner = insertDLL(x->children, 0, y);
+    node1 *owner = insertDLL(x->children, sizeDLL(x->children), y);
     y->owner = owner;
     y->parent = x;
+
     return x;
   }
   else
   {
-    node1 *owner = insertDLL(y->children, 0, x);
+    node1 *owner = insertDLL(y->children, sizeDLL(y->children), x);
     x->owner = owner;
     x->parent = y;
     return y;
@@ -271,73 +286,11 @@ consolidate(BINOMIAL *b)
 }
 
 
-// /*------2.0------*/
-// extern void
-// mergeLists(DLL *b, DLL *donor, BINOMIAL *bi)
-// {
-//   int count = 0;
-//   firstDLL(b);
-//   firstDLL(donor);
-//   BNODE *temp = removeDLL(donor, 0);
-//   BNODE *temp2 = currentDLL(b);
-//   while (sizeDLL(donor) >= 0) {
-//     if (bi->compare(getBNODEvalue(temp), getBNODEvalue(temp2)) < 0) {
-//       insertDLL(b, count, temp);
-//       if (sizeDLL(donor) == 0) {
-//         return;
-//       }
-//       firstDLL(donor);
-//       count++;
-//     }
-//     else {
-//       nextDLL(b);
-//       count++;
-//     }
-//   }
-//   return;
-// }
-
-
-extern void
-setBinomialSize(BINOMIAL *d, int size)
-{
-  d->size = size;
-  return;
-}
-
-
 extern BNODE *
 getBinomialExtreme(BINOMIAL *b)
 {
   return b->extreme;
 }
-
-
-// /*------1.0------*/
-// extern void
-// mergeListsBackwards(DLL *b, DLL *donor, BINOMIAL *bi)
-// {
-//   int count = 0;
-//   firstDLL(b);
-//   lastDLL(donor);
-//   BNODE *temp = removeDLL(donor, 0);
-//   BNODE *temp2 = currentDLL(b);
-//   while (sizeDLL(donor) >= 0) {
-//     if (bi->compare(getBNODEvalue(temp), getBNODEvalue(temp2)) < 0) {
-//       insertDLL(b, count, temp);
-//       if (sizeDLL(donor) == 0) {
-//         return;
-//       }
-//       lastDLL(donor);
-//       count++;
-//     }
-//     else {
-//       nextDLL(b);
-//       count++;
-//     }
-//   }
-//   return;
-// }
 
 
 /*------1.0------*/
@@ -351,6 +304,10 @@ insertBINOMIAL(BINOMIAL *b,void *value)
   if (sizeBINOMIAL(b) == 1) return new;
   else
   {
+    firstDLL(b->rootList);
+    nextDLL(b->rootList);
+    BNODE *next = currentDLL(b->rootList);
+    new->rsib = next;
     consolidate(b);
     return new;
   }
@@ -374,7 +331,7 @@ unionBINOMIAL(BINOMIAL *b,BINOMIAL *donor)
   }
   int donorSize = sizeBINOMIAL(donor);
   unionDLL(b->rootList,donor->rootList);
-  setBinomialSize(b,sizeBINOMIAL(b)+donorSize);
+  setHeapSize(b,sizeBINOMIAL(b)+donorSize);
   donor->rootList = newDLL(displayBNODE, freeBNODE);
   donor->size = 0;
   donor->extreme = NULL;
@@ -404,7 +361,7 @@ peekBINOMIAL(BINOMIAL *b)
 }
 
 
-/*------2.0------*/
+/*------3.0------*/
 extern void *
 extractBINOMIAL(BINOMIAL *b)
 {
@@ -416,7 +373,6 @@ extractBINOMIAL(BINOMIAL *b)
     temp->parent = temp;
     nextDLL(extreme->children);
   }
-  // consolidate(extreme->children);
   unionDLL(b->rootList, extreme->children);
   consolidate(b);
   decrHeapSize(b);

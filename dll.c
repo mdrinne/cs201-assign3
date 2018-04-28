@@ -59,9 +59,9 @@ insertDLL(DLL *items,int index,void *value) { //insert a node to list
 
   if (index == 0) { //add to head
     struct node1 *curr = items->head;
-    struct node1 *tail = items->tail;
-    temp->prev = tail;
-    tail->next = temp;
+    // struct node1 *tail = items->tail;
+    temp->prev = NULL;
+    // tail->next = temp;
     curr->prev = temp;
     temp->next = curr;
     items->head = temp;
@@ -69,9 +69,9 @@ insertDLL(DLL *items,int index,void *value) { //insert a node to list
   }
   else if (index == items->size) {  //add to tail
     struct node1 *curr = items->tail;
-    struct node1 *head = items->head;
-    temp->next = head;
-    head->prev = temp;
+    // struct node1 *head = items->head;
+    temp->next = NULL;
+    // head->prev = temp;
     curr->next = temp;
     temp->prev = curr;
     items->tail = temp;
@@ -124,9 +124,9 @@ removeDLL(DLL *items,int index) { //remove a node from the list
   if (index == 0) { //remove the head
     struct node1 *rem = items->head;
     struct node1 *newhead = rem->next;
-    struct node1 *tail = items->tail;
-    newhead->prev = tail;
-    tail->next = newhead;
+    // struct node1 *tail = items->tail;
+    newhead->prev = NULL;
+    // tail->next = newhead;
     items->head = newhead;
     items->size--;
     if (items->size == 1) {  //if only one item remains after node is removed, make head and tail the same node
@@ -140,9 +140,9 @@ removeDLL(DLL *items,int index) { //remove a node from the list
   else if (index == items->size-1) {  //remove the tail
     struct node1 *rem = items->tail;
     struct node1 *newtail = rem->prev;
-    struct node1 *head = items->head;
-    newtail->next = head;
-    head->prev = newtail;
+    // struct node1 *head = items->head;
+    newtail->next = NULL;
+    // head->prev = newtail;
     items->tail = newtail;
     items->size--;
     void *value = rem->data;
@@ -184,26 +184,35 @@ removeDLL(DLL *items,int index) { //remove a node from the list
 
 extern void
 unionDLL(DLL *recipient,DLL *donor) { //joins two list together
-  if (donor->size == 0){
+  struct node1 *donorHead = donor->head;
+  struct node1 *recTail = recipient->tail;
+  if (donorHead == NULL && donor->size == 0)
+  {
     return;
   }
-  else {
-    recipient->tail = donor->tail;
-    if (recipient->size == 0) {
+  else if (recipient->head == NULL && recipient->size == 0)
+  {
       recipient->head = donor->head;
-    }
-    struct node1 *rt = recipient->tail;
-    struct node1 *rh = recipient->head;
-    struct node1 *dh = donor->head;
-    struct node1 *dt = donor->tail;
-    rt->next = dh;
-    dh->prev = rt;
-    dt->next = rh;
-    rh->prev = dt;
-    recipient->size = recipient->size + donor->size;
-    donor->size = 0;
-    return;
+      recipient->tail = donor->tail;
+      recipient->size += donor->size;
+
+      donor->head = 0;
+      donor->tail = 0;
+      donor->size = 0;
+      return;
   }
+  else
+  {
+      recTail->next = donorHead;
+      recipient->tail = donor->tail;
+      recipient->size += donor->size;
+
+      donor->head = 0;
+      donor->tail = 0;
+      donor->size = 0;
+      return;
+  }
+  return;
 }
 
 
@@ -300,7 +309,7 @@ displayDLL(DLL *items,FILE *fp) { //displays the contents of the given list
     return;
   }
   struct node1 *curr = items->head;
-  while (curr != NULL) {
+  for (int i=0; i<items->size; i++) {
     items->display(curr->data, fp);
     if (curr->next != NULL) {
       printf(",");
@@ -387,8 +396,16 @@ removeDLLnode(DLL *d,void *a)
   node1 *prev = rem->prev;
   node1 *next = rem->next;
   void *val = rem->data;
-  prev->next = next;
-  next->prev = prev;
+  if (prev)
+  {
+    if (next) prev->next = next;
+    else prev->next = NULL;
+  }
+  if (next)
+  {
+    if (prev) next->prev = prev;
+    else next->prev = NULL;
+  }
   d->size--;
   //free(rem);
   return val;
@@ -398,7 +415,7 @@ removeDLLnode(DLL *d,void *a)
 extern node1 *
 getDLLhead(DLL *d)
 {
-  void *temp = d->head;
+  node1 *temp = d->head;
   return temp;
 }
 
@@ -449,6 +466,7 @@ prevDLL(DLL *d)
 extern void *
 currentDLL(DLL *d)
 {
+  if (d->iterator == NULL) return NULL;
   node1 *temp = d->iterator;
   return temp->data;
 }
