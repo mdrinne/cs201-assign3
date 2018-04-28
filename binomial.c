@@ -218,7 +218,6 @@ updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b)
     spot = combine(b,spot,D[degree]);
     D[degree] = NULL;
     degree++;
-    // temp++;
   }
   D[degree] = spot;
   return;
@@ -417,6 +416,7 @@ extractBINOMIAL(BINOMIAL *b)
     temp->parent = temp;
     nextDLL(extreme->children);
   }
+  // consolidate(extreme->children);
   unionDLL(b->rootList, extreme->children);
   consolidate(b);
   decrHeapSize(b);
@@ -435,7 +435,7 @@ statisticsBINOMIAL(BINOMIAL *b,FILE *fp)
 }
 
 
-/*------1.0------*/
+/*------2.0------*/
 extern void
 displayBINOMIAL(BINOMIAL *b,FILE *fp)
 {
