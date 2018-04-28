@@ -242,7 +242,7 @@ consolidate(BINOMIAL *b)
   }
 
   b->extreme = NULL;
-  for (int i=size-1; i>-0; i--)
+  for (int i=size-1; i>=0; i--)
   {
     if (D[i])
     {
@@ -259,7 +259,7 @@ consolidate(BINOMIAL *b)
         temp->rsib = next;
       }
       BNODE *temp2 = D[i];
-      if (b->extreme == NULL || b->compare(getBNODEvalue(temp2),getBNODEvalue(b->extreme)) < 0)
+      if ((b->extreme == NULL || b->compare(getBNODEvalue(temp2),getBNODEvalue(b->extreme)) < 0) && temp2)
       {
         b->extreme = temp2;
       }
@@ -342,6 +342,7 @@ getBinomialExtreme(BINOMIAL *b)
 extern void *
 insertBINOMIAL(BINOMIAL *b,void *value)
 {
+  printf("/*-------- In Insert --------*/");
   BNODE *new = newBNODE(b->display,b->compare,b->update,b->free, value);
   node1 *owner = insertDLL(b->rootList, 0, new);
   new->owner = owner;
