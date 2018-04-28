@@ -65,7 +65,8 @@ getBNODEvalue(BNODE *b)
 extern node1 *
 getBNODEowner(BNODE *b)
 {
-  return b->owner;
+  if (b) return b->owner;
+  else return NULL;
 }
 
 
@@ -223,7 +224,7 @@ updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b)
   return;
 }
 
-/*------5.0------*/
+/*------6.0------*/
 extern void
 consolidate(BINOMIAL *b)
 {
@@ -246,7 +247,9 @@ consolidate(BINOMIAL *b)
   {
     if (D[i])
     {
-      BNODE *temp = insertDLL(b->rootList,0,D[i]);
+      node1 *owner = insertDLL(b->rootList,0,D[i]);
+      BNODE *temp = D[i];
+      temp->owner = owner;
       if (sizeDLL(b->rootList) == 1)
       {
         temp->rsib = NULL;
@@ -342,7 +345,6 @@ getBinomialExtreme(BINOMIAL *b)
 extern void *
 insertBINOMIAL(BINOMIAL *b,void *value)
 {
-  printf("/*-------- In Insert --------*/");
   BNODE *new = newBNODE(b->display,b->compare,b->update,b->free, value);
   node1 *owner = insertDLL(b->rootList, 0, new);
   new->owner = owner;
@@ -398,7 +400,8 @@ decreaseKeyBINOMIAL(BINOMIAL *b,void *node,void *value)
 extern void *
 peekBINOMIAL(BINOMIAL *b)
 {
-  return b->extreme;
+  BNODE *extreme = getBinomialExtreme(b);
+  return getBNODEvalue(extreme);
 }
 
 
@@ -442,7 +445,7 @@ displayBINOMIAL(BINOMIAL *b,FILE *fp)
   firstDLL(roots);
   fprintf(fp, "rootlist:");
   BNODE *temp = NULL;
-  while (count <= size)
+  while (count < size)
   {
     temp = currentDLL(roots);
     DLL *children = getChildren(temp);
