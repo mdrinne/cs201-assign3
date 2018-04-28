@@ -166,7 +166,8 @@ decrHeapSize(BINOMIAL *b)
 extern DLL *
 getChildren(BNODE *bn)
 {
-  return bn->children;
+  if (sizeDLL(bn->children)) return NULL;
+  else return bn->children;
 }
 
 
@@ -343,8 +344,12 @@ insertBINOMIAL(BINOMIAL *b,void *value)
   node1 *owner = insertDLL(b->rootList, 0, new);
   new->owner = owner;
   incrHeapSize(b);
-  consolidate(b);
-  return new;
+  if (sizeBINOMIAL(b) == 1) return new;
+  else
+  {
+    consolidate(b);
+    return new;
+  }
 }
 
 
