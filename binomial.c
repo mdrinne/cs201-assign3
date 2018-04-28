@@ -163,10 +163,11 @@ decrHeapSize(BINOMIAL *b)
 }
 
 
+/*------2.0------*/
 extern DLL *
 getChildren(BNODE *bn)
 {
-  if (sizeDLL(bn->children)) return NULL;
+  if (!bn) return NULL;
   else return bn->children;
 }
 
@@ -211,7 +212,7 @@ extern void
 updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b)
 {
   int degree = sizeDLL(getChildren(spot));
-  while (D[degree] != NULL)
+  while (D[degree])
   {
     spot = combine(b,spot,D[degree]);
     D[degree] = NULL;
@@ -221,7 +222,7 @@ updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b)
   return;
 }
 
-/*------3.0------*/
+/*------34.0------*/
 extern void
 consolidate(BINOMIAL *b)
 {
@@ -235,7 +236,7 @@ consolidate(BINOMIAL *b)
   while (sizeDLL(b->rootList) != 0)
   {
     firstDLL(b->rootList);
-    BNODE *spot = removeDLLnode(b->rootList, currentDLL(b->rootList));
+    BNODE *spot = removeDLLnode(getRootList(b), getBNODEowner(currentDLL(getRootList(b))));
     updateConsolidationArray(*D,spot,b);
   }
 

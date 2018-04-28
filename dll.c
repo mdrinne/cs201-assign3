@@ -287,7 +287,8 @@ setDLL(DLL *items,int index,void *value) {  //changes the given nodes data
 
 extern int
 sizeDLL(DLL *items) { //returns the size of list
-  return items->size;
+  if (!items) return 0;
+  else return items->size;
 }
 
 
@@ -389,15 +390,23 @@ removeDLLnode(DLL *d,void *a)
   prev->next = next;
   next->prev = prev;
   d->size--;
-  free(rem);
+  //free(rem);
   return val;
+}
+
+
+extern node1 *
+getDLLhead(DLL *d)
+{
+  void *temp = d->head;
+  return temp;
 }
 
 
 extern void
 firstDLL(DLL *d)
 {
-  d->iterator = d->head;
+  d->iterator = getDLLhead(d);
   return;
 }
 
