@@ -212,22 +212,23 @@ extern void
 updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b)
 {
   int degree = sizeDLL(getChildren(spot));
-  while (D[degree])
+  while (D[degree] != NULL)
   {
     spot = combine(b,spot,D[degree]);
     D[degree] = NULL;
     degree++;
+    // temp++;
   }
   D[degree] = spot;
   return;
 }
 
-/*------34.0------*/
+/*------5.0------*/
 extern void
 consolidate(BINOMIAL *b)
 {
   int size = calculateArraySize(b);
-  BNODE **D[sizeof(BNODE *) * size];
+  BNODE **D = malloc(sizeof(BNODE *) * size);
   for (int i=0; i<size; i++)
   {
     D[i] = NULL;
@@ -237,7 +238,7 @@ consolidate(BINOMIAL *b)
   {
     firstDLL(b->rootList);
     BNODE *spot = removeDLLnode(getRootList(b), getBNODEowner(currentDLL(getRootList(b))));
-    updateConsolidationArray(*D,spot,b);
+    updateConsolidationArray(D,spot,b);
   }
 
   b->extreme = NULL;
@@ -257,7 +258,7 @@ consolidate(BINOMIAL *b)
         BNODE *next = currentDLL(b->rootList);
         temp->rsib = next;
       }
-      BNODE *temp2 = *D[i];
+      BNODE *temp2 = D[i];
       if (b->extreme == NULL || b->compare(getBNODEvalue(temp2),getBNODEvalue(b->extreme)) < 0)
       {
         b->extreme = temp2;
