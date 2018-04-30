@@ -46,7 +46,7 @@ compareSTRING(void *v,void *w)
     }
 
 extern int
-compareSTRINGdecr(void *v, void *w)
+rcompareSTRING(void *v, void *w)
     {
     return compareSTRING(w, v);
     }

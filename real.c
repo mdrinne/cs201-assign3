@@ -53,7 +53,7 @@ compareREAL(void *v,void *w)
     }
 
 extern int
-compareREALdecr(void *v, void *w)
+rcompareREAL(void *v, void *w)
   {
   return getREAL(w) - getREAL(v);
   }

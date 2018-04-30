@@ -45,7 +45,7 @@ compareINTEGER(void *v,void *w)
     }
 
 int
-compareINTEGERdecr(void *v, void *w)
+rcompareINTEGER(void *v, void *w)
   {
   return getINTEGER(w) - getINTEGER(v);
   }

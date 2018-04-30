@@ -10,7 +10,7 @@ extern char *getSTRING(STRING *);
 extern char *setSTRING(STRING *, char *);
 extern void displaySTRING(void *, FILE *);
 extern int compareSTRING(void *, void *);
-extern int compareSTRINGdecr(void *, void *);
+extern int rcompareSTRING(void *, void *);
 extern void freeSTRING(void *);
 
 #endif
