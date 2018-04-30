@@ -478,7 +478,7 @@ peekBINOMIAL(BINOMIAL *b)
 }
 
 
-/*------3.0------*/
+/*------4.0------*/
 extern void *
 extractBINOMIAL(BINOMIAL *b)
 {
