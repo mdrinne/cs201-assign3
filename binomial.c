@@ -11,7 +11,7 @@
 #include "queue.h"
 #include "dll.h"
 #include "vertex.h"
-#include "edge.h"
+// #include "edge.h"
 // #include "avl.h"
 #include "binomial.h"
 
@@ -109,7 +109,7 @@ compareBNODE(void *v, void *w)
 extern void
 updateBNODE(void *v, void *n)
 {
-  VERTEX *p = v;
+  struct vertex *p = v;
   setVERTEXowner(p, n);
 }
 
