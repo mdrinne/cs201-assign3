@@ -323,7 +323,7 @@ displayDLLdebug(DLL *items,FILE *fp) {  //displays the "debugged" version of the
   struct node1 *curr = items->head;
   for (int i=0; i<items->size; i++) {
     items->display(curr->data, fp);
-    if (curr->next != NULL) {
+    if (i != items->size-1) {
       printf(",");
     }
     curr = curr->next;
