@@ -1,6 +1,6 @@
 
 
-OBJS = integer.o real.o string.o sll.o dll.o queue.o stack.o bst.o heap.o heapsort.o gst.o avl.o scanner.o binomial.o
+OBJS = integer.o real.o string.o sll.o dll.o queue.o stack.o bst.o heap.o heapsort.o gst.o avl.o scanner.o binomial.o vertex.o edge.o
 LOPTS = -Wall -Wextra -std=c99 -g
 BEXTRA = sll.c dll.c queue.c integer.c real.c string.c
 BOEXTRA = sll.o dll.o queue.o integer.o real.o string.o
@@ -36,8 +36,8 @@ test-avl:
 	gcc $(LOPTS) avl-0-4.c $(BOEXTRA) avl.o bst.o -o test-avl
 
 test-binomial:
-	gcc $(LOPTS) -c binomial-0-0.c binomial.c $(BEXTRA)
-	gcc $(LOPTS) binomial-0-0.c $(BOEXTRA) binomial.o -o test-binomial
+	gcc $(LOPTS) -c binomial-0-0.c binomial.c vertex.c edge.c $(BEXTRA)
+	gcc $(LOPTS) binomial-0-0.c $(BOEXTRA) binomial.o vertex.o edge.o -o test-binomial
 
 valgrind: all
 	valgrind ./test-sll

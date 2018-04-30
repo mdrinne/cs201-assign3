@@ -10,6 +10,8 @@
 // #include "bst.h"
 #include "queue.h"
 #include "dll.h"
+#include "vertex.h"
+#include "edge.h"
 // #include "avl.h"
 #include "binomial.h"
 
@@ -30,7 +32,9 @@ struct bnode
 
 /*----------public functions for bnode----------*/
 extern void   *getBNODEvalue(BNODE *b);
+extern void    setBNODEvalue(BNODE *b, void *value);
 extern node1  *getBNODEowner(BNODE *b);
+extern BNODE  *getBNODEparent(BNODE *b);
 extern void    displayBNODE(void *v, FILE *fp);
 extern int     compareBNODE(void *v, void *w);
 extern void    updateBNODE(void *v, void *w);
@@ -62,11 +66,26 @@ getBNODEvalue(BNODE *b)
 }
 
 
+extern void
+setBNODEvalue(BNODE *b, void *value)
+{
+  b->value = value;
+  return;
+}
+
+
 extern node1 *
 getBNODEowner(BNODE *b)
 {
   if (b) return b->owner;
   else return NULL;
+}
+
+
+extern BNODE *
+getBNODEparent(BNODE *b)
+{
+  return b->parent;
 }
 
 
@@ -88,9 +107,10 @@ compareBNODE(void *v, void *w)
 
 
 extern void
-updateBNODE(void *v, void *w)
+updateBNODE(void *v, void *n)
 {
-
+  VERTEX *p = v;
+  setVERTEXowner(p, n);
 }
 
 
@@ -140,12 +160,14 @@ extern void    setHeapSize(BINOMIAL *b, int size);
 extern DLL    *getChildren(BNODE *d);
 extern DLL    *getRootList(BINOMIAL *b);
 extern void    setRootList(BINOMIAL *b, DLL *list);
+extern void    setExtreme(BINOMIAL *b, BNODE *node);
 extern int     calculateArraySize(BINOMIAL *b);
 extern BNODE  *combine(BINOMIAL *b, BNODE *x, BNODE *y);
 extern void    updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b);
 extern void    consolidate(BINOMIAL *b);
 extern BNODE  *getBinomialExtreme(BINOMIAL *b);
-extern void    mergeLists(DLL *b, DLL *donor, BINOMIAL *bi);
+// extern void    mergeLists(DLL *b, DLL *donor, BINOMIAL *bi);
+extern BNODE  *bubbleUp(BINOMIAL *b, BNODE *n);
 /*---------------------------------------------*/
 
 
@@ -193,6 +215,14 @@ extern void
 setRootList(BINOMIAL *b, DLL *list)
 {
   b->rootList = list;
+  return;
+}
+
+
+extern void
+setExtreme(BINOMIAL *b, BNODE *node)
+{
+  b->extreme = node;
   return;
 }
 
@@ -296,118 +326,114 @@ getBinomialExtreme(BINOMIAL *b)
 }
 
 
-/*------3.0------*/
-extern void
-mergeLists(DLL *b, DLL *donor, BINOMIAL *bi)
-{
-  firstDLL(b);
-  firstDLL(donor);
-  int bcount = sizeDLL(b);
-  int donorcount = sizeDLL(donor);
-  int count = bcount + donorcount;
-  int num = 0;
-  BNODE *temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
-  BNODE *temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
-  DLL *newRoot = newDLL(bi->display,bi->free);
-  while (num < count) {
-    int bdegree = sizeDLL(getChildren(temp2));
-    int ddegree = sizeDLL(getChildren(temp));
-    if (sizeDLL(donor) == 0)
-    {
-      temp2->owner = insertDLL(newRoot, num, temp2);
-      if (sizeDLL(b) != 0)
-      {
-        firstDLL(b);
-        temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
-      }
-      num++;
-    }
-    else if (sizeDLL(b) == 0)
-    {
-      temp->owner = insertDLL(newRoot, num, temp);
-      if (sizeDLL(donor) != 0)
-      {
-        firstDLL(donor);
-        temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
-      }
-      num++;
-    }
-
-    else if (bdegree < ddegree)
-    {
-      temp2->owner = insertDLL(newRoot, num, temp2);
-      if (sizeDLL(b) != 0)
-      {
-        firstDLL(b);
-        temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
-      }
-      num++;
-    }
-    else if (bdegree > ddegree)
-    {
-      temp->owner = insertDLL(newRoot, num, temp);
-      if (sizeDLL(donor) != 0)
-      {
-        firstDLL(donor);
-        temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
-      }
-      num++;
-    }
-    else
-    {
-      if (bi->compare(getBNODEvalue(temp), getBNODEvalue(temp2)) < 0)
-      {
-        temp->owner = insertDLL(newRoot, num, temp);
-        if (sizeDLL(donor) != 0)
-        {
-          firstDLL(donor);
-          temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
-        }
-        num++;
-      }
-      else
-      {
-        temp2->owner = insertDLL(newRoot, num, temp2);
-        if (sizeDLL(b) != 0)
-        {
-          firstDLL(b);
-          temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
-        }
-        num++;
-      }
-    }
-  }
-  setRootList(bi, newRoot);
-  return;
-}
-
-
+// /*------3.0------*/
 // extern void
-// unionDLLbackwards(DLL *recipient, DLL *donor)
+// mergeLists(DLL *b, DLL *donor, BINOMIAL *bi)
 // {
-//   node1 *donorTail = donor->tail;
-//   node1 *recHead = recipient->head;
-//   if (!donorHead && donor->size == 0) return;
-//   else if (!recipient->head && recipient->size == 0)
-//   {
-//     recipient->head = donor->head;
-//     recipient->tail = donor->tail;
-//     recipient->size += donor->size;
+//   firstDLL(b);
+//   firstDLL(donor);
+//   int bcount = sizeDLL(b);
+//   int donorcount = sizeDLL(donor);
+//   int count = bcount + donorcount;
+//   int num = 0;
+//   BNODE *temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
+//   BNODE *temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
+//   DLL *newRoot = newDLL(bi->display,bi->free);
+//   while (num < count) {
+//     int bdegree = sizeDLL(getChildren(temp2));
+//     int ddegree = sizeDLL(getChildren(temp));
+//     if (sizeDLL(donor) == 0)
+//     {
+//       temp2->owner = insertDLL(newRoot, num, temp2);
+//       if (sizeDLL(b) != 0)
+//       {
+//         firstDLL(b);
+//         temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
+//       }
+//       num++;
+//     }
+//     else if (sizeDLL(b) == 0)
+//     {
+//       temp->owner = insertDLL(newRoot, num, temp);
+//       if (sizeDLL(donor) != 0)
+//       {
+//         firstDLL(donor);
+//         temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
+//       }
+//       num++;
+//     }
 //
-//     donor->head = 0;
-//     donor->tail = 0;
-//     donor->size = 0;
-//     return;
+//     else if (bdegree < ddegree)
+//     {
+//       temp2->owner = insertDLL(newRoot, num, temp2);
+//       if (sizeDLL(b) != 0)
+//       {
+//         firstDLL(b);
+//         temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
+//       }
+//       num++;
+//     }
+//     else if (bdegree > ddegree)
+//     {
+//       temp->owner = insertDLL(newRoot, num, temp);
+//       if (sizeDLL(donor) != 0)
+//       {
+//         firstDLL(donor);
+//         temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
+//       }
+//       num++;
+//     }
+//     else
+//     {
+//       if (bi->compare(getBNODEvalue(temp), getBNODEvalue(temp2)) < 0)
+//       {
+//         temp->owner = insertDLL(newRoot, num, temp);
+//         if (sizeDLL(donor) != 0)
+//         {
+//           firstDLL(donor);
+//           temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
+//         }
+//         num++;
+//       }
+//       else
+//       {
+//         temp2->owner = insertDLL(newRoot, num, temp2);
+//         if (sizeDLL(b) != 0)
+//         {
+//           firstDLL(b);
+//           temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
+//         }
+//         num++;
+//       }
+//     }
 //   }
-//   else
-//   {
-//     donorTail->next = recHead;
-//     recipient->head = donor->head;
-//     recipient->size += donor->size;
-//     return;
-//   }
+//   setRootList(bi, newRoot);
 //   return;
 // }
+
+
+extern BNODE *
+bubbleUp(BINOMIAL *b, BNODE *n)
+{
+  BNODE *p = getBNODEparent(n);
+  if (getBNODEparent(n) == p)
+  {
+    return n;
+  }
+  else if (b->compare(getBNODEvalue(n), getBNODEvalue(p)) >= 0)
+  {
+    return n;
+  }
+  else
+  {
+    if (b->update) updateBNODE(n->value,p);
+    if (b->update) updateBNODE(p->value,n);
+    void *temp = n->value;
+    setBNODEvalue(n, p->value);
+    setBNODEvalue(p, temp);
+    return bubbleUp(b,p);
+  }
+}
 
 
 /*------1.0------*/
@@ -459,14 +485,19 @@ unionBINOMIAL(BINOMIAL *b,BINOMIAL *donor)
 extern void
 deleteBINOMIAL(BINOMIAL *b,void *node)
 {
-
+  decreaseKeyBINOMIAL(b,node,NULL);
+  extractBINOMIAL(b);
+  return;
 }
 
 
 extern void
 decreaseKeyBINOMIAL(BINOMIAL *b,void *node,void *value)
 {
-
+  setBNODEvalue(node,value);
+  BNODE *decr = bubbleUp(b, node);
+  setExtreme(b, decr);
+  return;
 }
 
 
@@ -597,5 +628,5 @@ displayBINOMIALdebug(BINOMIAL *b,FILE *fp)
 extern void
 freeBINOMIAL(BINOMIAL *b)
 {
-
+  free(b);
 }
