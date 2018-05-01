@@ -534,26 +534,7 @@ displayBINOMIALdebug(BINOMIAL *b,FILE *fp)
 }
 
 
-extern void
-freeBINOMIALlevel(int count, QUEUE *list)
-{
-  DLL *curr = dequeue(list);
-  while (count > 0)
-  {
-    firstDLL(curr);
-    for (int i=0; i<sizeDLL(curr); i++)
-    {
-      BNODE *temp = currentDLL(curr);
-      if (temp)
-      {
-        enqueue(list, getChildren(temp));
-      }
-      nextDLL(curr);
-    }
-  }
-}
-
-
+/*------2.0------*/
 extern void
 freeBINOMIAL(BINOMIAL *b)
 {
@@ -564,7 +545,31 @@ freeBINOMIAL(BINOMIAL *b)
     return;
   }
   QUEUE *list = newQUEUE(b->display, b->free);
-  enqueue(list, b->rootList);
-  freeBINOMIALlevel(0,list);
+  DLL *curr = b->rootList;
+  enqueue(list, curr);
+
+  int a = 0;
+  while (a < sizeBINOMIAL(b))
+  {
+    // printf("beginning of while\n");
+    int size = sizeQUEUE(list);
+    for (int i=0; i<size; i++)
+    {
+      // printf("top of for\n");
+      curr = dequeue(list);
+      firstDLL(curr);
+      for (int i=0; i<sizeDLL(curr); i++)
+      {
+        // printf("top of while\n");
+        BNODE *temp = currentDLL(curr);
+        enqueue(list, temp->children);
+        nextDLL(curr);
+      }
+      freeDLL(curr);
+      a++;
+    }
+  }
+  // printf("exited while\n");
+  freeQUEUE(list);
   free(b);
 }
