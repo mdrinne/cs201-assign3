@@ -10,7 +10,8 @@
 // #include "bst.h"
 #include "queue.h"
 #include "dll.h"
-#include "vertex.h"
+#include "integer.h"
+// #include "vertex.h"
 // #include "edge.h"
 // #include "avl.h"
 #include "binomial.h"
@@ -21,7 +22,7 @@ struct bnode
   DLL *children;
   BNODE *parent;
   BNODE *rsib;
-  node1 *owner;
+  struct node1 *owner;
   void *value;
   void (*display)(void *,FILE *);
   int (*compare)(void *, void *);
@@ -31,14 +32,14 @@ struct bnode
 
 
 /*----------public functions for bnode----------*/
-extern void   *getBNODEvalue(BNODE *b);
-extern void    setBNODEvalue(BNODE *b, void *value);
-extern node1  *getBNODEowner(BNODE *b);
-extern BNODE  *getBNODEparent(BNODE *b);
-extern void    displayBNODE(void *v, FILE *fp);
-extern int     compareBNODE(void *v, void *w);
-extern void    updateBNODE(void *v, void *w);
-extern void    freeBNODE(void *v);
+extern void          *getBNODEvalue(BNODE *b);
+extern void           setBNODEvalue(BNODE *b, void *value);
+extern struct node1  *getBNODEowner(BNODE *b);
+extern BNODE         *getBNODEparent(BNODE *b);
+extern void           displayBNODE(void *v, FILE *fp);
+extern int            compareBNODE(void *v, void *w);
+extern void           updateBNODE(void *v, void *w);
+extern void           freeBNODE(void *v);
 /*----------------------------------------------*/
 
 
@@ -74,7 +75,7 @@ setBNODEvalue(BNODE *b, void *value)
 }
 
 
-extern node1 *
+extern struct node1 *
 getBNODEowner(BNODE *b)
 {
   if (b) return b->owner;
@@ -109,8 +110,8 @@ compareBNODE(void *v, void *w)
 extern void
 updateBNODE(void *v, void *n)
 {
-  struct vertex *p = v;
-  setVERTEXowner(p, n);
+  BNODE *p = v;
+  p->owner = n;
 }
 
 
@@ -124,8 +125,6 @@ freeBNODE(void *v)
 struct binomial
 {
   DLL *rootList;
-  // QUEUE *nodes;
-  // QUEUE *oldNodes;
   BNODE *extreme;
   int size;
   void (*display)(void *,FILE *);
@@ -141,8 +140,6 @@ newBINOMIAL(void (*d)(void *,FILE *),int (*c)(void *,void *),void (*u)(void *,vo
   BINOMIAL *b = malloc(sizeof(BINOMIAL));
   assert(b != 0);
   b->rootList = newDLL(displayBNODE,freeBNODE);
-  // b->nodes    = newQUEUE(d,f);
-  // b->oldNodes = newQUEUE(d,f);
   b->extreme  = NULL;
   b->size     = 0;
   b->display  = d;
@@ -166,7 +163,6 @@ extern BNODE  *combine(BINOMIAL *b, BNODE *x, BNODE *y);
 extern void    updateConsolidationArray(BNODE **D, BNODE *spot, BINOMIAL *b);
 extern void    consolidate(BINOMIAL *b);
 extern BNODE  *getBinomialExtreme(BINOMIAL *b);
-// extern void    mergeLists(DLL *b, DLL *donor, BINOMIAL *bi);
 extern BNODE  *bubbleUp(BINOMIAL *b, BNODE *n);
 /*---------------------------------------------*/
 
@@ -241,7 +237,7 @@ combine(BINOMIAL *b, BNODE *x, BNODE *y)
   void *temp2 = getBNODEvalue(y);
   if (b->compare(temp,temp2) < 0)
   {
-    node1 *owner = insertDLL(x->children, sizeDLL(x->children), y);
+    struct node1 *owner = insertDLL(x->children, sizeDLL(x->children), y);
     y->owner = owner;
     y->parent = x;
 
@@ -249,7 +245,7 @@ combine(BINOMIAL *b, BNODE *x, BNODE *y)
   }
   else
   {
-    node1 *owner = insertDLL(y->children, sizeDLL(y->children), x);
+    struct node1 *owner = insertDLL(y->children, sizeDLL(y->children), x);
     x->owner = owner;
     x->parent = y;
     return y;
@@ -294,7 +290,7 @@ consolidate(BINOMIAL *b)
   {
     if (D[i])
     {
-      node1 *owner = insertDLL(b->rootList,0,D[i]);
+      struct node1 *owner = insertDLL(b->rootList,0,D[i]);
       BNODE *temp = D[i];
       temp->owner = owner;
       if (sizeDLL(b->rootList) == 1)
@@ -326,92 +322,6 @@ getBinomialExtreme(BINOMIAL *b)
 }
 
 
-// /*------3.0------*/
-// extern void
-// mergeLists(DLL *b, DLL *donor, BINOMIAL *bi)
-// {
-//   firstDLL(b);
-//   firstDLL(donor);
-//   int bcount = sizeDLL(b);
-//   int donorcount = sizeDLL(donor);
-//   int count = bcount + donorcount;
-//   int num = 0;
-//   BNODE *temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
-//   BNODE *temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
-//   DLL *newRoot = newDLL(bi->display,bi->free);
-//   while (num < count) {
-//     int bdegree = sizeDLL(getChildren(temp2));
-//     int ddegree = sizeDLL(getChildren(temp));
-//     if (sizeDLL(donor) == 0)
-//     {
-//       temp2->owner = insertDLL(newRoot, num, temp2);
-//       if (sizeDLL(b) != 0)
-//       {
-//         firstDLL(b);
-//         temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
-//       }
-//       num++;
-//     }
-//     else if (sizeDLL(b) == 0)
-//     {
-//       temp->owner = insertDLL(newRoot, num, temp);
-//       if (sizeDLL(donor) != 0)
-//       {
-//         firstDLL(donor);
-//         temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
-//       }
-//       num++;
-//     }
-//
-//     else if (bdegree < ddegree)
-//     {
-//       temp2->owner = insertDLL(newRoot, num, temp2);
-//       if (sizeDLL(b) != 0)
-//       {
-//         firstDLL(b);
-//         temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
-//       }
-//       num++;
-//     }
-//     else if (bdegree > ddegree)
-//     {
-//       temp->owner = insertDLL(newRoot, num, temp);
-//       if (sizeDLL(donor) != 0)
-//       {
-//         firstDLL(donor);
-//         temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
-//       }
-//       num++;
-//     }
-//     else
-//     {
-//       if (bi->compare(getBNODEvalue(temp), getBNODEvalue(temp2)) < 0)
-//       {
-//         temp->owner = insertDLL(newRoot, num, temp);
-//         if (sizeDLL(donor) != 0)
-//         {
-//           firstDLL(donor);
-//           temp = removeDLLnode(donor, getBNODEowner(currentDLL(donor)));
-//         }
-//         num++;
-//       }
-//       else
-//       {
-//         temp2->owner = insertDLL(newRoot, num, temp2);
-//         if (sizeDLL(b) != 0)
-//         {
-//           firstDLL(b);
-//           temp2 = removeDLLnode(b, getBNODEowner(currentDLL(b)));
-//         }
-//         num++;
-//       }
-//     }
-//   }
-//   setRootList(bi, newRoot);
-//   return;
-// }
-
-
 extern BNODE *
 bubbleUp(BINOMIAL *b, BNODE *n)
 {
@@ -441,7 +351,7 @@ extern void *
 insertBINOMIAL(BINOMIAL *b,void *value)
 {
   BNODE *new = newBNODE(b->display,b->compare,b->update,b->free, value);
-  node1 *owner = insertDLL(b->rootList, 0, new);
+  struct node1 *owner = insertDLL(b->rootList, 0, new);
   new->owner = owner;
   incrHeapSize(b);
   if (sizeBINOMIAL(b) == 1) return new;
@@ -521,11 +431,9 @@ extractBINOMIAL(BINOMIAL *b)
     temp->parent = temp;
     nextDLL(extreme->children);
   }
-  // unionDLLbackwards(b->rootList, extreme->children);
   unionDLL(extreme->children, b->rootList);
   setRootList(b, extreme->children);
   extreme->children = NULL;
-  // mergeLists(b->rootList, extreme->children, b);
   consolidate(b);
   decrHeapSize(b);
   return getBNODEvalue(extreme);
@@ -581,25 +489,26 @@ displayBINOMIAL(BINOMIAL *b,FILE *fp)
 }
 
 
+/*------2.0------*/
 extern void
 displayBINOMIALlevel(FILE *fp, int count, QUEUE *list)
 {
   DLL *curr = dequeue(list);
   while (count > 0)
   {
-    if (sizeDLL(curr) > 0) displayDLL(curr,fp);
+    displayDLL(curr, fp);
     firstDLL(curr);
     for (int i=0; i<sizeDLL(curr); i++)
     {
       BNODE *temp = currentDLL(curr);
       if (temp)
       {
-        enqueue(list, getChildren(temp));
+        if (sizeDLL(getChildren(temp)) > 0) enqueue(list, getChildren(temp));
       }
       nextDLL(curr);
     }
     count--;
-    curr = dequeue(list);
+    if (count != 0) curr = dequeue(list);
   }
   printf("\n");
   if (sizeQUEUE(list) > 0)
@@ -626,7 +535,36 @@ displayBINOMIALdebug(BINOMIAL *b,FILE *fp)
 
 
 extern void
+freeBINOMIALlevel(int count, QUEUE *list)
+{
+  DLL *curr = dequeue(list);
+  while (count > 0)
+  {
+    firstDLL(curr);
+    for (int i=0; i<sizeDLL(curr); i++)
+    {
+      BNODE *temp = currentDLL(curr);
+      if (temp)
+      {
+        enqueue(list, getChildren(temp));
+      }
+      nextDLL(curr);
+    }
+  }
+}
+
+
+extern void
 freeBINOMIAL(BINOMIAL *b)
 {
+  if (b->size == 0)
+  {
+    freeDLL(b->rootList);
+    free(b);
+    return;
+  }
+  QUEUE *list = newQUEUE(b->display, b->free);
+  enqueue(list, b->rootList);
+  freeBINOMIALlevel(0,list);
   free(b);
 }

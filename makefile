@@ -36,8 +36,8 @@ test-avl:
 	gcc $(LOPTS) avl-0-4.c $(BOEXTRA) avl.o bst.o -o test-avl
 
 test-binomial:
-	gcc $(LOPTS) -c binomial-0-3.c binomial.c vertex.c edge.c $(BEXTRA)
-	gcc $(LOPTS) binomial-0-3.c $(BOEXTRA) binomial.o vertex.o edge.o -o test-binomial
+	gcc $(LOPTS) -c binomial-0-0.c binomial.c $(BEXTRA)
+	gcc $(LOPTS) binomial-0-0.c $(BOEXTRA) binomial.o -o test-binomial
 
 valgrind: all
 	valgrind ./test-sll

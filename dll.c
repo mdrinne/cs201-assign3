@@ -196,6 +196,7 @@ unionDLL(DLL *recipient,DLL *donor) { //joins two list together
   else
   {
       recTail->next = donorHead;
+      donorHead->prev = recTail;
       recipient->tail = donor->tail;
       recipient->size += donor->size;
 
