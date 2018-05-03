@@ -118,7 +118,9 @@ updateBNODE(void *v, void *n)
 extern void
 freeBNODE(void *v)
 {
-  free(v);
+  BNODE *b = v;
+  b->free(b->value);
+  free(b);
 }
 
 
@@ -387,8 +389,10 @@ unionBINOMIAL(BINOMIAL *b,BINOMIAL *donor)
   setHeapSize(b,sizeBINOMIAL(b)+donorSize);
   donor->rootList = newDLL(displayBNODE, freeBNODE);
   donor->size = 0;
-  donor->extreme = NULL;
+  // donor->extreme = NULL;
+  freeDLL(donor->rootList);
   consolidate(b);
+  return;
 }
 
 
@@ -419,24 +423,31 @@ peekBINOMIAL(BINOMIAL *b)
 }
 
 
-/*------4.0------*/
+/*------5.0------*/
 extern void *
 extractBINOMIAL(BINOMIAL *b)
 {
   BNODE *extreme = removeDLLnode(b->rootList, getBNODEowner(getBinomialExtreme(b)));
-  firstDLL(extreme->children);
-  for (int i=0; i<sizeDLL(extreme->children); i++)
+  extreme->parent = NULL;
+  DLL *children = getChildren(extreme);
+  firstDLL(children);
+  for (int i=0; i<sizeDLL(children); i++)
   {
-    BNODE *temp = currentDLL(extreme->children);
+    BNODE *temp = currentDLL(children);
     temp->parent = temp;
-    nextDLL(extreme->children);
+    nextDLL(children);
   }
-  unionDLL(extreme->children, b->rootList);
-  setRootList(b, extreme->children);
-  extreme->children = NULL;
+  unionDLL(children, b->rootList);
+  extreme->children = b->rootList;
+  setRootList(b, children);
+  freeDLL(extreme->children);
   consolidate(b);
   decrHeapSize(b);
-  return getBNODEvalue(extreme);
+  extreme->children = 0;
+  extreme->owner = 0;
+  void *val = getBNODEvalue(extreme);
+  free(extreme);
+  return val;
 }
 
 
@@ -551,16 +562,13 @@ freeBINOMIAL(BINOMIAL *b)
   int a = 0;
   while (a < sizeBINOMIAL(b))
   {
-    // printf("beginning of while\n");
     int size = sizeQUEUE(list);
     for (int i=0; i<size; i++)
     {
-      // printf("top of for\n");
       curr = dequeue(list);
       firstDLL(curr);
       for (int i=0; i<sizeDLL(curr); i++)
       {
-        // printf("top of while\n");
         BNODE *temp = currentDLL(curr);
         enqueue(list, temp->children);
         nextDLL(curr);
@@ -569,7 +577,6 @@ freeBINOMIAL(BINOMIAL *b)
       a++;
     }
   }
-  // printf("exited while\n");
   freeQUEUE(list);
   free(b);
 }
